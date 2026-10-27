@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Long Lunch — Poster</title>
+<meta name="description" content="Original posters from Long Lunch, printed when you order.">
+<script>document.documentElement.classList.add('js');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&amp;family=Instrument+Serif:ital@0;1&amp;family=Londrina+Solid:wght@900&amp;family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&amp;family=Permanent+Marker&amp;family=UnifrakturMaguntia&amp;display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="topbar">Printed when you order it. Free shipping over 999&nbsp;kr.</div>
+
+<header class="site-header wrap">
+  <a class="logo" href="index.html">LONG LUNCH</a>
+  <div class="header-right">
+    <nav class="main-nav" aria-label="Main">
+      <a href="index.html#collection-1">Collection No. 1</a>
+      <a href="index.html#collections">Collections</a>
+      <a href="index.html#about">About</a>
+    </nav>
+    <a class="cart" href="cart.html" aria-label="Cart">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M5 8h14l-1.2 12H6.2L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+      <span>Cart (<span data-cart-count>0</span>)</span>
+    </a>
+  </div>
+</header>
+
+<main id="main" class="wrap product-page" data-product-page>
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="index.html#collection-1">Collection No. 1</a><span aria-hidden="true">/</span>
+    <span data-bind="collection"></span><span aria-hidden="true">/</span>
+    <span aria-current="page" data-bind="title"></span>
+  </nav>
+
+  <div class="product">
+    <div class="product-media">
+      <div class="viewer">
+        <div class="view is-active" data-view="room"><div data-room></div></div>
+        <div class="view" data-view="close"><div class="scene scene--close" data-close></div></div>
+        <div class="view" data-view="flat"><div class="scene scene--flat" data-flat></div></div>
+      </div>
+      <div class="view-switch" role="group" aria-label="How to show the poster">
+        <button type="button" data-view-btn="room" aria-pressed="true">On a wall</button>
+        <button type="button" data-view-btn="close" aria-pressed="false">Up close</button>
+        <button type="button" data-view-btn="flat" aria-pressed="false">Just the print</button>
+      </div>
+      <p class="caption" data-view-caption>Shown at <span data-bind="summary"></span>. Wall not included.</p>
+    </div>
+
+    <div class="product-info">
+      <div>
+        <p class="kicker"><span data-bind="number"></span> <em data-bind="collection"></em></p>
+        <h1 class="display product-title" data-bind="title"></h1>
+        <p class="product-tag" data-bind="tagline"></p>
+      </div>
+
+      <div class="price-row">
+        <p class="price" data-bind="price"></p>
+        <p class="price-note">incl. VAT · <span data-bind="shipNote"></span></p>
+      </div>
+
+      <p class="product-desc" data-bind="description"></p>
+
+      <fieldset class="options">
+        <legend>Size</legend>
+        <div class="opts opts-4" data-sizes></div>
+      </fieldset>
+
+      <fieldset class="options">
+        <legend>Frame</legend>
+        <div class="opts opts-3" data-frames></div>
+      </fieldset>
+
+      <div class="buy">
+        <div class="qty" role="group" aria-label="Quantity">
+          <button type="button" data-qty="-1" aria-label="One fewer">−</button>
+          <output aria-live="polite" data-bind="qty">1</output>
+          <button type="button" data-qty="1" aria-label="One more">+</button>
+        </div>
+        <button type="button" class="btn" data-add>Add to cart</button>
+      </div>
+      <p class="status" role="status" data-status hidden></p>
+
+      <p class="product-coll">
+        <span>From Collection No. 1: cobalt, cream and a little red</span>
+        <span class="coll-dots" aria-hidden="true"><i style="--c:#1F48C4"></i><i style="--c:#1C3687"></i><i style="--c:#ECE5D3"></i><i style="--c:#D8352A"></i></span>
+      </p>
+
+      <div class="details">
+        <details>
+          <summary>Paper and print</summary>
+          <p>Printed on [PAPER SPEC] by [PRINT PARTNER], only after you order.</p>
+        </details>
+        <details>
+          <summary>Shipping</summary>
+          <p>Made to order, then sent to you. Shipping is 79&nbsp;kr, and free on orders over 999&nbsp;kr. Delivery times: [SHIPPING TIMES].</p>
+        </details>
+        <details>
+          <summary>Returns</summary>
+          <p>[RETURN POLICY]</p>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <section class="related" aria-labelledby="related-title">
+    <div class="related-head">
+      <h2 id="related-title" class="display">Hang it with</h2>
+      <a class="link-serif" href="index.html#collection-1">See all six</a>
+    </div>
+    <div class="ed-grid is-uniform" data-related></div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <p class="footer-logo">LONG<br>LUNCH</p>
+        <p class="footer-tag">Stay for one more.</p>
+      </div>
+      <nav class="footer-nav" aria-label="Footer">
+        <div>
+          <p class="footer-head">Shop</p>
+          <a href="index.html#collection-1">Collection No. 1</a>
+          <a href="index.html#collections">All collections</a>
+        </div>
+        <div>
+          <p class="footer-head">Help</p>
+          <a href="help.html#shipping">Shipping</a>
+          <a href="help.html#returns">Returns</a>
+          <a href="help.html#contact">Contact</a>
+          <a href="mailto:longlunchcompany@gmail.com">Email us</a>
+        </div>
+        <div data-follow>
+          <p class="footer-head">Follow</p>
+          <a href="#" data-social="instagram" hidden>Instagram</a>
+          <a href="#" data-social="pinterest" hidden>Pinterest</a>
+        </div>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Long Lunch</span>
+      <span>Printed to order by [PRINT PARTNER]</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/posters.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>

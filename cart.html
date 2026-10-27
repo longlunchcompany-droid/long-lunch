@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Long Lunch — Cart</title>
+<meta name="description" content="Your Long Lunch cart.">
+<script>document.documentElement.classList.add('js');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&amp;family=Instrument+Serif:ital@0;1&amp;family=Londrina+Solid:wght@900&amp;family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&amp;family=Permanent+Marker&amp;family=UnifrakturMaguntia&amp;display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="topbar">Printed when you order it. Free shipping over 999&nbsp;kr.</div>
+
+<header class="site-header wrap">
+  <a class="logo" href="index.html">LONG LUNCH</a>
+  <div class="header-right">
+    <nav class="main-nav" aria-label="Main">
+      <a href="index.html#collection-1">Collection No. 1</a>
+      <a href="index.html#collections">Collections</a>
+      <a href="index.html#about">About</a>
+    </nav>
+    <a class="cart" href="cart.html" aria-label="Cart">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M5 8h14l-1.2 12H6.2L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+      <span>Cart (<span data-cart-count>0</span>)</span>
+    </a>
+  </div>
+</header>
+
+<main id="main" class="wrap page cart-page" data-cart-page>
+  <p class="kicker">Long Lunch <em>your cart</em></p>
+  <h1 class="display page-title">Cart</h1>
+
+  <div class="cart-empty" data-cart-empty hidden>
+    <p>Nothing here yet. The table is set, though.</p>
+    <a class="btn" href="index.html#collection-1">See Collection No. 1</a>
+  </div>
+
+  <div class="cart-layout">
+    <ul class="cart-list" data-cart-list></ul>
+    <aside class="cart-summary" data-cart-summary hidden aria-label="Order summary">
+      <dl>
+        <div><dt>Subtotal</dt><dd data-sum="subtotal"></dd></div>
+        <div><dt>Shipping</dt><dd data-sum="shipping"></dd></div>
+        <div class="cart-total"><dt>Total <span>incl. VAT</span></dt><dd data-sum="total"></dd></div>
+      </dl>
+      <p class="cart-hint" data-sum="hint"></p>
+      <button type="button" class="btn cart-checkout" data-checkout>Go to checkout</button>
+      <p class="status" role="status" data-checkout-note hidden>Online checkout opens soon. Want a poster now? Email your order to <a href="mailto:longlunchcompany@gmail.com">longlunchcompany@gmail.com</a> and we’ll sort it out.</p>
+      <a class="link-serif" href="index.html#collection-1">Keep browsing</a>
+    </aside>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <p class="footer-logo">LONG<br>LUNCH</p>
+        <p class="footer-tag">Stay for one more.</p>
+      </div>
+      <nav class="footer-nav" aria-label="Footer">
+        <div>
+          <p class="footer-head">Shop</p>
+          <a href="index.html#collection-1">Collection No. 1</a>
+          <a href="index.html#collections">All collections</a>
+        </div>
+        <div>
+          <p class="footer-head">Help</p>
+          <a href="help.html#shipping">Shipping</a>
+          <a href="help.html#returns">Returns</a>
+          <a href="help.html#contact">Contact</a>
+          <a href="mailto:longlunchcompany@gmail.com">Email us</a>
+        </div>
+        <div data-follow>
+          <p class="footer-head">Follow</p>
+          <a href="#" data-social="instagram" hidden>Instagram</a>
+          <a href="#" data-social="pinterest" hidden>Pinterest</a>
+        </div>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Long Lunch</span>
+      <span>Printed to order by [PRINT PARTNER]</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/posters.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>
