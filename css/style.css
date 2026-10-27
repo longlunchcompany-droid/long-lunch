@@ -104,6 +104,22 @@ img, svg { max-width: 100%; }
 .main-nav a { text-decoration: none; padding: 12px 0; }
 .cart { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 4px; text-decoration: none; font-size: 15px; font-weight: 500; }
 
+/* Currency picker (added by js/site.js) */
+.currency { display: inline-flex; align-items: center; }
+.currency select {
+  min-height: 44px;
+  padding: 0 20px 0 4px;
+  border: 0;
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%231A1A17' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 4px center;
+  color: var(--ink);
+  font: 500 15px var(--sans);
+  letter-spacing: .02em;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.currency select:hover { color: var(--cobalt); }
+
 /* ---------- 4. Type & buttons ---------- */
 
 .display { margin: 0; font-weight: 900; font-stretch: 62%; line-height: .9; text-transform: uppercase; }
@@ -505,7 +521,7 @@ img, svg { max-width: 100%; }
 /* Ticker */
 .ticker { background: var(--cobalt); color: var(--on-ink); overflow: hidden; border-top: 1px solid rgba(255, 255, 255, .15); }
 .ticker-track { display: flex; width: max-content; animation: ticker 48s linear infinite; }
-.ticker-track span {
+.ticker-track > span {
   padding: .7rem 1.1rem;
   font-weight: 800;
   font-stretch: 62%;

@@ -17,6 +17,18 @@
 - `print` = pris uten ramme, `framed` = pris med ramme (kr inkl. mva)
 - `SHIPPING = 79` og `FREE_SHIPPING_FROM = 999`
 
+## Valuta
+
+Besøkende ser prisene i sin egen valuta. Siden gjetter hvor de er ut fra tidssonen på enheten deres (og nettleserspråket hvis tidssonen ikke sier noe). De kan også bytte selv i menyen ved siden av handlekurven, og valget huskes i nettleseren deres.
+
+- Prisene settes fortsatt i kroner (se over). De andre valutaene regnes om derfra.
+- Kursene står i `CURRENCIES` i `js/site.js`, rett under prisene. `rate` er hvor mange kroner én enhet koster (Norges Bank, 26. oktober 2026). Oppdater dem hvis kronen flytter seg mye.
+- Prisene rundes opp til hele beløp (€24, $27), og til et tall som slutter på 9 i svenske og danske kroner (269 kr).
+- Frakt (`shipping`) og grensen for gratis frakt (`freeFrom`) er satt for hånd i hver valuta, så de blir runde tall.
+- Norge: NOK. Sverige: SEK. Danmark, Færøyene og Grønland: DKK. Storbritannia: GBP. Sveits: CHF. USA: USD. Canada: CAD. Australia: AUD. Resten av Europa: EUR. Resten av verden: USD.
+
+Valutaen styrer bare hva som vises. Når du kobler til en butikkplattform, er det den som tar betalt, og den må settes opp med de samme valutaene og prisene (i Shopify heter det Markets).
+
 ## Rommene plakatene vises i
 
 I `js/site.js` under `STAGING` bestemmer du hvordan hver plakat vises:

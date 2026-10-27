@@ -32,6 +32,24 @@
   var FREE_SHIPPING_FROM = 999;
   var FROM_PRICE = SIZES[0].print;
 
+  // ---------- Currencies ----------
+  // Prices above are set in NOK. Visitors abroad see them converted at these fixed rates,
+  // rounded up to a tidy price (whole units, or ending in 9 for SEK and DKK).
+  // rate = how many NOK one unit costs (Norges Bank, 26 Oct 2026; SEK and DKK are per 1, not per 100).
+  // shipping and freeFrom are set by hand in each currency so they stay round numbers.
+  var CURRENCIES = {
+    NOK: { rate: 1,       shipping: SHIPPING, freeFrom: FREE_SHIPPING_FROM, locale: 'nb-NO', round: 'nine' },
+    SEK: { rate: 0.9386,  shipping: 89,  freeFrom: 1099, locale: 'sv-SE', round: 'nine' },
+    DKK: { rate: 1.3987,  shipping: 59,  freeFrom: 699,  locale: 'da-DK', round: 'nine' },
+    EUR: { rate: 10.4545, shipping: 8,   freeFrom: 95,   locale: 'en-IE', round: 'whole' },
+    GBP: { rate: 12.4726, shipping: 7,   freeFrom: 80,   locale: 'en-GB', round: 'whole' },
+    USD: { rate: 9.3444,  shipping: 9,   freeFrom: 105,  locale: 'en-US', round: 'whole' },
+    CHF: { rate: 11.3107, shipping: 7,   freeFrom: 90,   locale: 'de-CH', round: 'whole' },
+    CAD: { rate: 6.661,   shipping: 12,  freeFrom: 150,  locale: 'en-CA', round: 'whole' },
+    AUD: { rate: 6.564,   shipping: 13,  freeFrom: 150,  locale: 'en-AU', round: 'whole' }
+  };
+  var HOME_CURRENCY = 'NOK';
+
   // ---------- Staging: how each poster is shown in the shop ----------
   // type: tape (used for all now) | table | window | ledge | clip | floor | sun
   // roomWall: wall colour on the product page (defaults to wall)
@@ -62,7 +80,105 @@
   // ---------- Helpers ----------
   function $(sel, root) { return (root || document).querySelector(sel); }
   function $all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
-  function kr(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' kr'; }
+  // ---------- Currency: which one this visitor sees ----------
+  var CURRENCY_KEY = 'll-currency';
+  var CANADA = /^America\/(Toronto|Montreal|Vancouver|Edmonton|Winnipeg|Halifax|St_Johns|Regina|Moncton|Glace_Bay|Goose_Bay|Whitehorse|Dawson|Dawson_Creek|Fort_Nelson|Creston|Iqaluit|Rankin_Inlet|Resolute|Cambridge_Bay|Inuvik|Yellowknife|Swift_Current|Thunder_Bay|Nipigon|Rainy_River|Atikokan|Pangnirtung|Blanc-Sablon)$|^Canada\//;
+  var ZONES = {
+    'Europe/Oslo': 'NOK', 'Arctic/Longyearbyen': 'NOK', 'Atlantic/Jan_Mayen': 'NOK',
+    'Europe/Stockholm': 'SEK',
+    'Europe/Copenhagen': 'DKK', 'Atlantic/Faroe': 'DKK', 'America/Nuuk': 'DKK', 'America/Godthab': 'DKK',
+    'America/Danmarkshavn': 'DKK', 'America/Scoresbysund': 'DKK', 'America/Thule': 'DKK',
+    'Europe/London': 'GBP', 'Europe/Belfast': 'GBP', 'Europe/Guernsey': 'GBP', 'Europe/Jersey': 'GBP', 'Europe/Isle_of_Man': 'GBP',
+    'Europe/Zurich': 'CHF', 'Europe/Vaduz': 'CHF',
+    'Atlantic/Canary': 'EUR', 'Atlantic/Madeira': 'EUR', 'Atlantic/Azores': 'EUR', 'Atlantic/Reykjavik': 'EUR',
+    'Africa/Ceuta': 'EUR', 'Asia/Nicosia': 'EUR', 'Asia/Famagusta': 'EUR'
+  };
+  var REGIONS = { NO: 'NOK', SJ: 'NOK', SE: 'SEK', DK: 'DKK', FO: 'DKK', GL: 'DKK', GB: 'GBP', CH: 'CHF', LI: 'CHF', US: 'USD', CA: 'CAD', AU: 'AUD' };
+  var LANGS = { nb: 'NOK', nn: 'NOK', no: 'NOK', sv: 'SEK', da: 'DKK' };
+
+  // The device's time zone says where the visitor is; the browser language is the fallback.
+  function currencyFromZone(tz) {
+    if (!tz || /^(Etc\/|UTC$|GMT$|Universal$|Zulu$)/.test(tz)) return null;
+    if (ZONES[tz]) return ZONES[tz];
+    if (CANADA.test(tz)) return 'CAD';
+    if (/^Australia\//.test(tz)) return 'AUD';
+    if (/^Europe\//.test(tz)) return 'EUR';
+    return 'USD';
+  }
+  function currencyFromLanguage() {
+    var langs = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || ''];
+    for (var i = 0; i < langs.length; i++) {
+      var parts = String(langs[i]).split('-');
+      var region = parts.length > 1 ? parts[parts.length - 1].toUpperCase() : '';
+      if (REGIONS[region]) return REGIONS[region];
+      if (LANGS[parts[0].toLowerCase()]) return LANGS[parts[0].toLowerCase()];
+    }
+    return null;
+  }
+  function detectCurrency() {
+    var tz = '';
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { /* old browser */ }
+    return currencyFromZone(tz) || currencyFromLanguage() || HOME_CURRENCY;
+  }
+  function savedCurrency() {
+    try { var c = window.localStorage.getItem(CURRENCY_KEY); return CURRENCIES[c] ? c : null; } catch (e) { return null; }
+  }
+  var currency = savedCurrency() || detectCurrency();
+  var formatters = {};
+
+  // Converts a NOK amount to the visitor's currency, rounded to a tidy price.
+  function convert(nok) {
+    var c = CURRENCIES[currency];
+    if (currency === HOME_CURRENCY) return nok;
+    var v = nok / c.rate;
+    return c.round === 'nine' ? Math.ceil((v + 1) / 10) * 10 - 1 : Math.ceil(v);
+  }
+  function format(amount) {
+    var c = CURRENCIES[currency];
+    try {
+      if (!formatters[currency]) {
+        formatters[currency] = new Intl.NumberFormat(c.locale, { style: 'currency', currency: currency, minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      }
+      return formatters[currency].format(amount).replace(/\.$/, '');   // Danish "kr." would double up with a full stop
+    } catch (e) {
+      return String(amount).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ' + currency;
+    }
+  }
+  function money(nok) { return format(convert(nok)); }
+  function shippingCost() { return CURRENCIES[currency].shipping; }
+  function freeShippingFrom() { return CURRENCIES[currency].freeFrom; }
+
+  // Amounts written into the HTML: <span data-price="from|shipping|free">…</span>
+  function applyStaticPrices() {
+    $all('[data-price]').forEach(function (el) {
+      var k = el.getAttribute('data-price');
+      if (k === 'from') el.textContent = money(FROM_PRICE);
+      if (k === 'shipping') el.textContent = format(shippingCost());
+      if (k === 'free') el.textContent = format(freeShippingFrom());
+    });
+  }
+  var priceRenderers = [];
+  function onCurrencyChange(fn) { priceRenderers.push(fn); }
+
+  // Currency picker, added to the header on every page
+  function initCurrencyPicker() {
+    var spot = $('.header-right .cart');
+    if (!spot) return;
+    var label = document.createElement('label');
+    label.className = 'currency';
+    label.innerHTML = '<span class="sr-only">Currency</span><select data-currency-select>' +
+      Object.keys(CURRENCIES).map(function (code) {
+        return '<option value="' + code + '"' + (code === currency ? ' selected' : '') + '>' + code + '</option>';
+      }).join('') + '</select>';
+    spot.parentNode.insertBefore(label, spot);
+    $('select', label).addEventListener('change', function (ev) {
+      currency = ev.target.value;
+      try { window.localStorage.setItem(CURRENCY_KEY, currency); } catch (e) { /* storage unavailable */ }
+      applyStaticPrices();
+      priceRenderers.forEach(function (fn) { fn(); });
+    });
+  }
+
   function esc(s) {
     return String(s).replace(/&/g, '&amp;').replace(/[<]/g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
@@ -213,7 +329,7 @@
       '<div class="card-cap">' +
         '<p class="card-no">No. ' + esc(p.no) + ' <span>· ' + esc(p.collection) + '</span></p>' +
         '<h3 class="card-title">' + esc(p.title) + '</h3>' +
-        '<p class="card-price">From ' + kr(FROM_PRICE) + '</p>' +
+        '<p class="card-price">From <span data-price="from">' + money(FROM_PRICE) + '</span></p>' +
         '<p class="card-tag">' + esc(p.tagline) + '</p>' +
         '<span class="card-view" aria-hidden="true">See it on the wall →</span>' +
       '</div></a>';
@@ -243,8 +359,9 @@
     showCart();
   }
   function itemPrice(i) { var s = sizeById(i.size); return i.frame === 'none' ? s.print : s.framed; }
+  function unitPrice(i) { return convert(itemPrice(i)); }   // in the visitor's currency
   function cartCount() { return cart.reduce(function (n, i) { return n + i.qty; }, 0); }
-  function cartSubtotal() { return cart.reduce(function (n, i) { return n + itemPrice(i) * i.qty; }, 0); }
+  function cartSubtotal() { return cart.reduce(function (n, i) { return n + unitPrice(i) * i.qty; }, 0); }
   function showCart() { $all('[data-cart-count]').forEach(function (el) { el.textContent = String(cartCount()); }); }
   function addToCart(id, size, frame, qty) {
     var same = cart.filter(function (i) { return i.id === id && i.size === size && i.frame === frame; })[0];
@@ -271,7 +388,7 @@
           '<div class="cart-info">' +
             '<p class="cart-no">No. ' + esc(p.no) + '</p>' +
             '<h2 class="cart-title"><a href="product.html?p=' + esc(p.id) + '">' + esc(p.title) + '</a></h2>' +
-            '<p class="cart-opts">' + esc(s.text) + ', ' + esc(f.text) + ' · ' + kr(itemPrice(i)) + '</p>' +
+            '<p class="cart-opts">' + esc(s.text) + ', ' + esc(f.text) + ' · ' + format(unitPrice(i)) + '</p>' +
             '<div class="cart-actions">' +
               '<div class="qty qty--small" role="group" aria-label="Quantity of ' + esc(p.title) + '">' +
                 '<button type="button" data-row="' + n + '" data-step="-1" aria-label="One fewer">−</button>' +
@@ -281,18 +398,19 @@
               '<button type="button" class="text-button" data-remove="' + n + '">Remove</button>' +
             '</div>' +
           '</div>' +
-          '<p class="cart-line">' + kr(itemPrice(i) * i.qty) + '</p>' +
+          '<p class="cart-line">' + format(unitPrice(i) * i.qty) + '</p>' +
         '</li>';
       }).join('');
       mountPosters(list, true);
       var sub = cartSubtotal();
-      var ship = sub >= FREE_SHIPPING_FROM ? 0 : SHIPPING;
-      $('[data-sum="subtotal"]', page).textContent = kr(sub);
-      $('[data-sum="shipping"]', page).textContent = ship ? kr(ship) : 'Free';
-      $('[data-sum="total"]', page).textContent = kr(sub + ship);
-      var left = FREE_SHIPPING_FROM - sub;
-      $('[data-sum="hint"]', page).textContent = left > 0 ? 'Add ' + kr(left) + ' more for free shipping.' : 'Shipping is on us.';
+      var ship = sub >= freeShippingFrom() ? 0 : shippingCost();
+      $('[data-sum="subtotal"]', page).textContent = format(sub);
+      $('[data-sum="shipping"]', page).textContent = ship ? format(ship) : 'Free';
+      $('[data-sum="total"]', page).textContent = format(sub + ship);
+      var left = freeShippingFrom() - sub;
+      $('[data-sum="hint"]', page).textContent = left > 0 ? 'Add ' + format(left) + ' more for free shipping.' : 'Shipping is on us.';
     }
+    onCurrencyChange(render);
 
     list.addEventListener('click', function (ev) {
       var step = ev.target.closest('[data-step]');
@@ -416,7 +534,7 @@
     function current() {
       var size = SIZES.filter(function (s) { return s.id === state.size; })[0];
       var frame = FRAMES.filter(function (f) { return f.id === state.frame; })[0];
-      var unit = frame.id === 'none' ? size.print : size.framed;
+      var unit = convert(frame.id === 'none' ? size.print : size.framed);   // in the visitor's currency
       return { size: size, frame: frame, unit: unit, total: unit * state.qty };
     }
 
@@ -425,7 +543,7 @@
       sizesBox.innerHTML = SIZES.map(function (s) {
         var price = c.frame.id === 'none' ? s.print : s.framed;
         return '<button type="button" class="opt opt-size" data-size="' + s.id + '" aria-pressed="' + (s.id === c.size.id) + '">' +
-          '<span class="l">' + s.label + '</span><span class="s">' + s.sub + '</span><span class="p">' + kr(price) + '</span></button>';
+          '<span class="l">' + s.label + '</span><span class="s">' + s.sub + '</span><span class="p">' + money(price) + '</span></button>';
       }).join('');
       framesBox.innerHTML = FRAMES.map(function (f) {
         return '<button type="button" class="opt opt-frame" data-frame="' + f.id + '" aria-pressed="' + (f.id === c.frame.id) + '">' +
@@ -441,10 +559,11 @@
       if (state.view === 'close') caption.textContent = canHover ? 'Up close. Move across the picture to look around.' : 'Up close. Tap the picture to look around.';
       if (state.view === 'flat') caption.innerHTML = 'Just the print, ' + esc(summary) + '.';
 
-      bind('price', kr(c.unit));
-      bind('shipNote', c.total >= FREE_SHIPPING_FROM ? 'free shipping' : 'shipping ' + kr(SHIPPING));
+      bind('price', format(c.unit));
+      bind('shipNote', c.total >= freeShippingFrom() ? 'free shipping' : 'shipping ' + format(shippingCost()));
       bind('qty', String(state.qty));
     }
+    onCurrencyChange(render);
 
     sizesBox.addEventListener('click', function (ev) {
       var b = ev.target.closest('[data-size]');
@@ -500,9 +619,11 @@
 
   // ---------- Start ----------
   renderStaticScenes();
+  initCurrencyPicker();
   initHome();
   initProduct();
   initCart();
+  applyStaticPrices();
   applySiteDetails();
   mountPosters(document);
   $all('.card .scene').forEach(enableLoupe);
