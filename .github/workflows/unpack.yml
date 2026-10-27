@@ -1,0 +1,33 @@
+name: Unpack site zip
+
+# Upload a .zip of the site to the repo root and this unpacks it,
+# commits the files and removes the zip. GitHub Pages then republishes.
+on:
+  push:
+    paths:
+      - '*.zip'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unzip into the repo root
+        run: |
+          shopt -s nullglob
+          zips=(*.zip)
+          if [ ${#zips[@]} -eq 0 ]; then echo "No zip found"; exit 0; fi
+          for z in "${zips[@]}"; do
+            unzip -o "$z" -x '__MACOSX/*' '*.DS_Store'
+            git rm -q "$z"
+          done
+          touch .nojekyll
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Unpack site files from zip"
+          git push
