@@ -913,8 +913,8 @@ img, svg { max-width: 100%; }
   .slot-q { grid-column: 1 / span 4; }
   .slot-c { grid-column: 5 / span 4; margin-top: clamp(2rem, 4vw, 4rem); }
   .slot-d { grid-column: 9 / span 4; margin-top: clamp(7rem, 13vw, 12rem); }
-  .slot-e { grid-column: 2 / span 4; }
-  .slot-f { grid-column: 7 / span 6; margin-top: clamp(-8rem, -6vw, -3rem); }
+  .slot-e { grid-column: 2 / span 4; margin-top: max(-10vw, -9rem); }
+  .slot-f { grid-column: 7 / span 6; margin-top: 0; }
 }
 
 /* ---------- 8. Motion ---------- */
